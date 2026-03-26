@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WindaRecenzje</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+	/* Styl dla powiększonego zdjęcia (Lightbox) */
+.lightbox {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: none; /* Domyślnie ukryte */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    cursor: zoom-out;
+}
+
+.lightbox img {
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    transform: scale(0.8);
+    transition: transform 0.3s ease;
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox.active img {
+    transform: scale(1);
+}
+        :root {
+            --accent: #ffb703;
+            --bg: #0a0a0a;
+            --card: #161616;
+            --text: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        
+        body { background-color: var(--bg); color: var(--text); scroll-behavior: smooth; }
+
+        /* Nawigacja */
+        header { 
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 25px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #222;
+        }
+
+        header h1 { font-weight: 700; font-size: 1.6rem; color: var(--accent); letter-spacing: -1px; }
+
+        .hamburger { cursor: pointer; z-index: 1001; transition: 0.3s; }
+        .hamburger:hover { opacity: 0.7; }
+        .bar { width: 25px; height: 2px; background: var(--accent); margin: 5px 0; }
+
+        /* Menu boczne */
+        .nav-overlay {
+            position: fixed; top: 0; right: -100%; width: 350px; height: 100vh;
+            background: #111; z-index: 999; padding: 100px 50px;
+            transition: 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
+            box-shadow: -10px 0 50px rgba(0,0,0,0.8);
+        }
+        .nav-overlay.active { right: 0; }
+        .nav-overlay a { color: white; text-decoration: none; font-size: 1.5rem; display: block; margin-bottom: 30px; font-weight: 300; transition: 0.3s; }
+        .nav-overlay a:hover { color: var(--accent); transform: translateX(10px); }
+
+        /* Hero Section */
+        .hero { 
+            height: 60vh; background: linear-gradient(rgba(0,0,0,0.7), var(--bg)), url('https://picsum.photos/id/111/1200/800');
+            background-size: cover; background-position: center;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            padding: 0 20px;
+        }
+        .hero-content h2 { font-size: 3.5rem; margin-bottom: 10px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+
+        /* Content */
+        .container { max-width: 1200px; margin: -50px auto 50px; padding: 0 20px; position: relative; }
+
+        .section-card { background: var(--card); padding: 50px; border-radius: 20px; border: 1px solid #222; margin-bottom: 40px; }
+        h3 { font-size: 1.8rem; margin-bottom: 30px; border-left: 5px solid var(--accent); padding-left: 20px; }
+
+        /* Ranking Tabela */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; color: #666; font-size: 0.8rem; text-transform: uppercase; padding: 15px; border-bottom: 1px solid #222; }
+        td { padding: 25px 15px; border-bottom: 1px solid #222; font-size: 1.1rem; }
+        tr:last-child td { border: none; }
+        
+        .movie-link { color: white; text-decoration: none; font-weight: 700; transition: 0.3s; display: flex; align-items: center; }
+        .movie-link:hover { color: var(--accent); }
+        .movie-link::before { content: '→'; margin-right: 10px; color: var(--accent); opacity: 0; transition: 0.3s; }
+        .movie-link:hover::before { opacity: 1; }
+
+        .badge { background: #333; padding: 5px 12px; border-radius: 50px; font-size: 0.9rem; color: var(--accent); border: 1px solid var(--accent); }
+
+        /* Galeria */
+        .grid-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .grid-gallery div { 
+            height: 300px; border-radius: 15px; overflow: hidden; position: relative; cursor: pointer;
+        }
+        .grid-gallery img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s ease; }
+        .grid-gallery div:hover img { transform: scale(1.1); filter: brightness(1.2); }
+
+        /* Footer */
+        footer { padding: 60px 20px; text-align: center; border-top: 1px solid #222; color: #444; }
+    </style>
+</head>
+<body>
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="Powiększenie">
+</div>
+
+    <header>
+        <h1>WINDA<span>RECENZJE</span></h1>
+        <div class="hamburger" onclick="toggleNav()">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+    </header>
+
+    <div id="nav" class="nav-overlay">
+        <a href="index.html" onclick="toggleNav()">Strona Główna</a>
+        <a href="diuna.html">Diuna: Część Druga</a>
+        <a href="oppenheimer.html">Oppenheimer</a>
+	<a href="chlopi.html">Chłopi</a>
+        <a href="#galeria" onclick="toggleNav()">Galeria</a>
+    </div>
+
+    <section class="hero">
+        <div class="hero-content">
+            <p style="color:var(--accent); letter-spacing: 5px;">KRYTYKA KINEMATOGRAFII</p>
+            <h2>Winda do świata filmu.</h2>
+        </div>
+    </section>
+
+    <div class="container">
+        <section class="section-card">
+            <h3>TOP LISTA ROKU</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Tytuł</th><th>Gatunek</th><th>Werdykt</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a href="diuna.html" class="movie-link">Diuna: Część Druga</a></td>
+                            <td>Science Fiction</td>
+                            <td><span class="badge">9.5 / 10</span></td>
+                        </tr>
+                        <tr>
+                            <td><a href="oppenheimer.html" class="movie-link">Oppenheimer</a></td>
+                            <td>Dramat / Biograficzny</td>
+                            <td><span class="badge">9.2 / 10</span></td>
+                        </tr>
+                        <tr>
+                            <td><a href="chlopi.html" class="movie-link">Chłopi</a></td>
+                            <td>Dramat</td>
+                            <td><span class="badge">8.4 / 10</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section-card" id="galeria">
+            <h3>PLAKATY FILMÓW</h3>
+            <div class="grid-gallery">
+                <div><img src="https://historia.org.pl/wp-content/uploads/2022/08/Oppenheimer-768x1138.jpeg" onclick="openLightbox(this.src)" alt="1"></div>
+                <div><img src="https://filmklaps.pl/wp-content/uploads/2024/02/DIUNA-2-2023_Zendaya_Chani_pl-819x1024.jpg" onclick="openLightbox(this.src)" alt="2"></div>
+                <div><img src="https://next-film.pl/wp-content/uploads/2013/01/CHLOPI_plakat-scaled.jpg" onclick="openLightbox(this.src)" alt="3"></div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        &copy; 2026 WindaRecenzje. Wszystkie treści autorskie.
+    </footer>
+
+    <script>
+        function toggleNav() {
+            document.getElementById("nav").classList.toggle("active");
+        }
+function openLightbox(src) {
+    const lightbox = document.getElementById("lightbox");
+    const img = document.getElementById("lightbox-img");
+    img.src = src;
+    lightbox.classList.add("active");
+    document.body.style.overflow = "hidden"; // Blokuje przewijanie strony pod spodem
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById("lightbox");
+    lightbox.classList.remove("active");
+    document.body.style.overflow = "auto"; // Przywraca przewijanie
+}
+    </script>
+</body>
+</html>
